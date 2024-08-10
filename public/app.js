@@ -29,9 +29,8 @@ function registerNotificationServiceWorker () {
 }
 
 async function registerPushManager() {
-    await registerNotificationServiceWorker();
-
     try {
+        await registerNotificationServiceWorker();
         const result = await window.Notification.requestPermission();
 
         if (result !== 'granted') {

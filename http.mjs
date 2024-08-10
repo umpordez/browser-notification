@@ -6,9 +6,9 @@ import webpush from 'web-push';
 
 const HTTP_PORT = 8000;
 const vapidKeys = {
-    subject : "mailto: <deividyz@gmail.com>",
-    publicKey : "BNk8GDXHIJEWrbpYUmwGuxGX-q_cS-1RF0OrjwB0kPJjkro0JJPGDkh_pTUOhtc_eQUi8EH50LgYX3eXBrb_ou4",
-    privateKey : "QhaU3v9RMpz01eiqA-EzXEHujBhGZodJq7LuXK-F60I"
+    subject : "mailto:deividyz@gmail.com",
+    publicKey: 'BEIExHp6gQ6RBs-2bWFpFRxZkmdp4m29l9BtjjSWPOAddYxCM3k1YLokAtnxVarRuMquQiGslzicGaWBL20kyaM',
+    privateKey: 'umejD7kPNtnM82Pk3xB5GH2vQhwUy7t4inHH1mc0mh8'
 };
 
 const __filename = fileURLToPath(import.meta.url);
