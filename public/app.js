@@ -29,25 +29,38 @@ function registerNotificationServiceWorker () {
 }
 
 async function registerPushManager() {
-    const subscription = await window.notificationServiceWorker
-        .pushManager
-        .subscribe({
-            applicationServerKey: window.VAPID_PUBLIC_KEY,
-            userVisibleOnly: true
+    await registerNotificationServiceWorker();
+
+    try {
+        const result = await window.Notification.requestPermission();
+
+        if (result !== 'granted') {
+            alert(`Permission result: ${result}`);
+            return;
+        }
+
+        const subscription = await window.notificationServiceWorker
+            .pushManager
+            .subscribe({
+                applicationServerKey: window.VAPID_PUBLIC_KEY,
+                userVisibleOnly: true
+            });
+
+        await fetch('/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                browserId: window.BROWSER_ID,
+                pushSubscription: subscription
+            })
         });
 
-    await fetch('/subscribe', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            browserId: window.BROWSER_ID,
-            pushSubscription: subscription
-        })
-    });
-
-    alert('Subscribed my friend.');
+        alert('Subscribed my friend.');
+    } catch (ex) {
+        alert(`Error when subscribing: ${ex.message}`);
+    }
 }
 
 registerNotificationServiceWorker().catch(console.error);
