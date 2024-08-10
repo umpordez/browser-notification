@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <title>hello world ;)</title>
+
+        <script type='text/javascript'>
+            window.BROWSER_ID = localStorage.getItem('BROWSER_ID') ||
+                new Date().getTime();
+
+            localStorage.setItem('BROWSER_ID', window.BROWSER_ID);
+            window.VAPID_PUBLIC_KEY = '<%= vapidPublicKey %>'
+        </script>
+    </head>
+    <body>
+        <h1>Push Notification Tests</h1>
+        <p>Browser: #<span id='browserId'></span></p>
+
+        <button id='subscribe'>
+            Subscribe to notifications
+        </button>
+
+        <hr />
+
+        <input
+            placeholder='Notification Text'
+            type='text'
+            id='message' />
+
+        <button id='notifyAll' type='button'>Notify All</button>
+
+        <% if (browsers.length) { %>
+        <hr />
+
+        <h3>Subscribed browsers:</h3>
+        <ul>
+            <% for (const browser of browsers) { %>
+                <li>Browser #<%= browser.id %></li>
+            <% } %>
+        </ul>
+        <% } %>
+
+        <script type='module' src='./app.js'></script>
+    </body>
+</html>
