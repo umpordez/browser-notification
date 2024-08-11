@@ -93,6 +93,7 @@ app.post('/notify-all', express.json(), buildHandler(async (req, res) => {
         }
     }
 
+    await writeBrowsersById();
     res.status(200).json({ ok: true });
 }));
 
