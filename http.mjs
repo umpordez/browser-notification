@@ -1,4 +1,5 @@
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'url';
 
 import express from 'express';
@@ -31,7 +32,22 @@ const logger = {
     error: console.error
 };
 
-const browsersById = {};
+const browsersByIdFilepath = path.resolve(__dirname, 'browsers-by-id');
+
+let browsersById = {};
+try {
+    const contents = await fs.promises.readFile(browsersByIdFilepath);
+    browsersById = JSON.parse(contents);
+} catch (ex) {
+    // ignore
+}
+
+
+async function writeBrowsersById() {
+    await fs
+        .promises
+        .writeFile(browsersByIdFilepath, JSON.stringify(browsersById));
+}
 
 function buildHandler(fn) {
     return async (req, res) => {
@@ -51,9 +67,11 @@ app.get('/', buildHandler((req, res) => {
     });
 }));
 
-app.post('/subscribe', express.json(), buildHandler((req, res) => {
+app.post('/subscribe', express.json(), buildHandler(async (req, res) => {
     const { browserId, pushSubscription } = req.body;
     browsersById[browserId] = { id: browserId, pushSubscription };
+
+    await writeBrowsersById();
 
     res.status(200).json({ ok: true });
 }));
@@ -69,6 +87,9 @@ app.post('/notify-all', express.json(), buildHandler(async (req, res) => {
             await webpush.sendNotification(pushSubscription, str);
         } catch (ex) {
             logger.error(ex);
+
+            // if error, removes from browsersById
+            delete browsersById[id];
         }
     }
 

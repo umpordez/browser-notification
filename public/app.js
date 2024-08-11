@@ -1,3 +1,4 @@
+let notificationServiceWorker;
 function registerNotificationServiceWorker () {
     return new Promise((resolve, reject) => {
         if (!('serviceWorker' in navigator)) {
@@ -13,14 +14,14 @@ function registerNotificationServiceWorker () {
                 registration.active;
 
             if (registration.active) {
-                window.notificationServiceWorker = registration;
+                notificationServiceWorker = registration;
                 resolve();
                 return;
             }
 
             sw.addEventListener('statechange', (ev) => {
                 if (ev.target.state === 'activated') {
-                    window.notificationServiceWorker = registration;
+                    notificationServiceWorker = registration;
                     resolve();
                 }
             });
@@ -29,8 +30,14 @@ function registerNotificationServiceWorker () {
 }
 
 async function registerPushManager() {
+    await registerNotificationServiceWorker();
+
+    if (!notificationServiceWorker) {
+        alert('Sorry, unable to register service worker');
+        return;
+    }
+
     try {
-        await registerNotificationServiceWorker();
         const result = await window.Notification.requestPermission();
 
         if (result !== 'granted') {
@@ -38,7 +45,7 @@ async function registerPushManager() {
             return;
         }
 
-        const subscription = await window.notificationServiceWorker
+        const subscription = await notificationServiceWorker
             .pushManager
             .subscribe({
                 applicationServerKey: window.VAPID_PUBLIC_KEY,
@@ -62,13 +69,13 @@ async function registerPushManager() {
     }
 }
 
+document.querySelector('#browserId').innerHTML = window.BROWSER_ID;
 registerNotificationServiceWorker().catch(console.error);
 
 document.querySelector('#subscribe').addEventListener('click', () => {
     registerPushManager();
 });
 
-document.querySelector('#browserId').innerHTML = window.BROWSER_ID;
 document.querySelector('#notifyAll').addEventListener('click', async () => {
     await fetch('/notify-all', {
         method: 'POST',
